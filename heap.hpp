@@ -7,8 +7,7 @@
 template<typename T, typename Compare = std::less<T>> class heap
 {
    public:
-    heap() {
-        mem = new std::vector<T>();
+    heap() : mem() {
     }
 
     heap(std::vector<T> elems) {
@@ -18,19 +17,22 @@ template<typename T, typename Compare = std::less<T>> class heap
         }
     }
 
-    ~heap() {
-    }
+    ~heap() = default;
 
     void push (const T &elem) {
-        if(Compare{}(mem.back(), elem)) {
-            mem.push_back(elem);
-            int i = mem.size();
-            while(i > 1 && Compare{}(mem[(i / 2) - 1], mem[i - 1])) {
-                auto cnt = (i / 2) - 1;
-                auto tmp = mem[cnt];
-                mem[cnt] = mem[i - 1];
-                mem[i - 1] = tmp;
-                i = (i / 2);
+        if(!mem.empty()) {
+            if(Compare{}(mem.back(), elem)) {
+                mem.push_back(elem);
+                int i = mem.size();
+                while(i > 1 && Compare{}(mem[(i / 2) - 1], mem[i - 1])) {
+                    auto cnt = (i / 2) - 1;
+                    auto tmp = mem[cnt];
+                    mem[cnt] = mem[i - 1];
+                    mem[i - 1] = tmp;
+                    i = (i / 2);
+                }
+            } else {
+                mem.push_back(elem);
             }
         } else {
             mem.push_back(elem);
@@ -53,6 +55,10 @@ template<typename T, typename Compare = std::less<T>> class heap
             std::cout << n << " ";
         }
         std::cout << std::endl;
+    }
+
+    int size (void) {
+        return mem.size();
     }
 
    private:
