@@ -11,12 +11,10 @@ template<typename T, typename Compare = std::less<T>> class heap
         mem = new std::vector<T>();
     }
 
-    heap(std::vector<T> &elems) {
+    heap(std::vector<T> elems) {
         if(!elems.empty()) {
-            mem = elems;
-            for(int i = (mem.size() / 2) + 2; i >= 0; --i) {
-                make_heap_great_again(i);
-            }
+            mem = std::move(elems);
+            build();
         }
     }
 
@@ -26,12 +24,13 @@ template<typename T, typename Compare = std::less<T>> class heap
     void push (const T &elem) {
         if(Compare{}(mem.back(), elem)) {
             mem.push_back(elem);
-            int i = mem.size() - 1;
-            while(i != 0 && Compare{}(mem[i / 2], mem[i])) {
-                auto tmp = mem[i / 2];
-                mem[i / 2] = mem[i];
-                mem[i] = tmp;
-                i = i / 2;
+            int i = mem.size();
+            while(i > 1 && Compare{}(mem[(i / 2) - 1], mem[i - 1])) {
+                auto cnt = (i / 2) - 1;
+                auto tmp = mem[cnt];
+                mem[cnt] = mem[i - 1];
+                mem[i - 1] = tmp;
+                i = (i / 2);
             }
         } else {
             mem.push_back(elem);
@@ -57,6 +56,11 @@ template<typename T, typename Compare = std::less<T>> class heap
     }
 
    private:
+    void build () {
+        for(int i = (mem.size() / 2) + 2; i >= 0; --i) {
+            make_heap_great_again(i);
+        }
+    }
     void make_heap_great_again (size_t index) {
         size_t left = (index * 2) + 1;
         size_t right = (index * 2) + 2;
@@ -65,11 +69,9 @@ template<typename T, typename Compare = std::less<T>> class heap
         if(left < mem.size() && Compare{}(mem[index], mem[left])) {
             max = left;
         }
-
         if(right < mem.size() && Compare{}(mem[max], mem[right])) {
             max = right;
         }
-
         if(max != index) {
             auto tmp = mem[index];
             mem[index] = mem[max];
